@@ -1,18 +1,16 @@
 import numpy as np
 import cv2
-from typing import List
 
 # detectron2 utilities
 from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
-from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog
 
 # Detectron2 config
 cfg = get_cfg()
 cfg = model_zoo.get_config("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
-cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.1  # set threshold for this model
+cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.1  
 cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
 
 predictor = DefaultPredictor(cfg)
@@ -43,7 +41,7 @@ def rotate_image_if_needed(image):
         image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
     return image
 
-def get_card(image) -> List[np.ndarray]:
+def get_card(image):
     result = []
     outputs = predictor(image)
     instances = outputs["instances"].to("cpu")
@@ -56,7 +54,6 @@ def get_card(image) -> List[np.ndarray]:
     if len(book_indices) > 0:
         book_boxes = boxes[book_indices]
         book_masks = masks[book_indices]
-        v = Visualizer(image[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
 
         for box, mask in zip(book_boxes, book_masks):
             x1, y1, x2, y2 = box.astype(int)

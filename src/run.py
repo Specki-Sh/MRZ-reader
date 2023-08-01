@@ -3,6 +3,7 @@ import cv2
 import reader
 import image_enchant
 import utils
+import detector
 
 def helper(img) -> str:
     try: 
@@ -13,7 +14,7 @@ def helper(img) -> str:
 
 def main(image_path):
     img = cv2.imread(image_path)
-    images = image_enchant.get_card(img)
+    images = detector.get_card(img)
     mrz = []
     for image in images:
         m = helper(image)
