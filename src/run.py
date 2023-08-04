@@ -5,12 +5,14 @@ import image_enchant
 import utils
 import detector
 
+
 def helper(img) -> str:
-    try: 
+    try:
         passport = reader.Back(img)
         return passport.MRZ
     except UnboundLocalError:
         return 'bad image'
+
 
 def main(image_path):
     img = cv2.imread(image_path)
@@ -27,10 +29,15 @@ def main(image_path):
     if len(mrz) == 0:
         print("не удалось корректно обработать изображение")
     else:
-        print(mrz[0])
+        print(mrz)
+        for m in mrz:
+            if m[:2] == 'ID':
+                print(m)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--image", required=True, help="Path to the image")
+    parser.add_argument("-i", "--image", required=True,
+                        help="Path to the image")
     args = parser.parse_args()
     main(args.image)

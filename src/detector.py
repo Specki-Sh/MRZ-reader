@@ -12,6 +12,7 @@ cfg = get_cfg()
 cfg = model_zoo.get_config("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.1  
 cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
+cfg.MODEL.DEVICE='cpu'
 
 predictor = DefaultPredictor(cfg)
 
@@ -20,7 +21,7 @@ def align_document(image, mask):
     contour = max(contours, key=cv2.contourArea)
     rect = cv2.minAreaRect(contour)
     box = cv2.boxPoints(rect)
-    box = np.int0(box)
+    box = np.intp(box)
 
     center = np.mean(box, axis=0)
     corners = sorted(box, key=lambda corner: np.arctan2(corner[1] - center[1], corner[0] - center[0]))

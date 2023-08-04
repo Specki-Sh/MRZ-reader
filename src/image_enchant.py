@@ -4,7 +4,7 @@ import cv2
 color_white = (255, 255, 255)
 
 rectKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (13, 5))
-sqKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (21, 21))
+sqKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (27, 27))
 
 
 def smooth_image(gray):
@@ -23,12 +23,14 @@ def compute_gradient(black_hat):
 # Размываем текст чтобы слепить его в единный камок
 def apply_closing_operations(gradX, rectKernel, sqKernel):
     gradX = cv2.morphologyEx(gradX, cv2.MORPH_CLOSE, rectKernel)
-    thresh = cv2.threshold(gradX, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    thresh = cv2.threshold(
+        gradX, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, sqKernel)
-    return cv2.erode(thresh, None, iterations=4)
+    thresh = cv2.erode(thresh, None, iterations=4)
+    return thresh
 
 
-# При размытие мы могли соъединить текст с границами, убераем 5% слева и справа 
+# При размытие мы могли соъединить текст с границами, убераем 5% слева и справа
 def remove_border_pixels(thresh, image):
     p = int(image.shape[1] * 0.05)
     thresh[:, 0:p] = 0
@@ -80,7 +82,7 @@ def rotate_image(mat, angle):
     height, width = mat.shape[:2]
     image_center = (
         width / 2,
-        height / 2)  
+        height / 2)
 
     rotation_mat = cv2.getRotationMatrix2D(image_center, angle, 1.)
 
@@ -93,8 +95,8 @@ def rotate_image(mat, angle):
     rotation_mat[0, 2] += bound_w / 2 - image_center[0]
     rotation_mat[1, 2] += bound_h / 2 - image_center[1]
 
-    rotated_mat = cv2.warpAffine(mat, rotation_mat, 
-                                (bound_w, bound_h), 
+    rotated_mat = cv2.warpAffine(mat, rotation_mat,
+                                 (bound_w, bound_h),
                                  borderMode=cv2.BORDER_CONSTANT,
                                  borderValue=color_white,
                                  )
@@ -103,9 +105,9 @@ def rotate_image(mat, angle):
 
 def convert_to_binary(img):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    img = cv2.GaussianBlur(img, (5, 5), 225)
-    se = cv2.getStructuringElement(cv2.MORPH_RECT, (8, 8))
+    img = cv2.GaussianBlur(img, (3, 3), 255)
+    se = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
     bg = cv2.morphologyEx(img, cv2.MORPH_DILATE, se)
     out_gray = cv2.divide(img, bg, scale=255)
-    out_binary = cv2.threshold(out_gray, 0, 255, cv2.THRESH_OTSU)[1]
+    out_binary = cv2.threshold(out_gray, 55, 255, cv2.THRESH_OTSU)[1]
     return out_binary
