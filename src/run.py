@@ -18,11 +18,9 @@ def main(image_path):
     img = cv2.imread(image_path)
     images = detector.get_card(img)
     mrz = []
-    for image in images:
+    for image in (m for img in images
+                  for m in (img, image_enchant.rotate_image(img, 180))):
         m = helper(image)
-        if utils.validate_mrz(m):
-            mrz.append(m)
-        m = helper(image_enchant.rotate_image(image, 180))
         if utils.validate_mrz(m):
             mrz.append(m)
 
